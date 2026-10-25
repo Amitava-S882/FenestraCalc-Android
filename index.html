@@ -1,0 +1,648 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>FenestraCalc – Architectural Window Sizing & Ventilation Engineering</title>
+  <meta name="description" content="Calculate compliant fenestration apertures, natural ventilation airflow rates, and optimal solar glazing assemblies directly on your Android device." />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #090d16;
+      --surface: #111827;
+      --surface-border: #1f293d;
+      --text-main: #f8fafc;
+      --text-muted: #94a3b8;
+      --accent: #0ea5e9;
+      --accent-glow: rgba(14, 165, 233, 0.25);
+      --accent-hover: #38bdf8;
+      --emerald: #10b981;
+      --radius-lg: 20px;
+      --radius-md: 12px;
+      --font: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+      --mono: 'JetBrains Mono', monospace;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      background-color: var(--bg);
+      color: var(--text-main);
+      font-family: var(--font);
+      line-height: 1.6;
+      overflow-x: hidden;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* Ambient background gradient */
+    .glow-bg {
+      position: absolute;
+      top: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 1000px;
+      height: 550px;
+      background: radial-gradient(circle at 50% 20%, rgba(14, 165, 233, 0.18), transparent 70%);
+      z-index: 0;
+      pointer-events: none;
+    }
+
+    /* Header Nav */
+    header {
+      position: relative;
+      z-index: 10;
+      max-width: 1200px;
+      width: 100%;
+      margin: 0 auto;
+      padding: 24px 24px 0;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-weight: 800;
+      font-size: 1.25rem;
+      letter-spacing: -0.02em;
+      color: var(--text-main);
+      text-decoration: none;
+    }
+
+    .brand-icon {
+      width: 36px;
+      height: 36px;
+      border-radius: 10px;
+      background: linear-gradient(135deg, #0ea5e9, #2563eb);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 4px 12px var(--accent-glow);
+    }
+
+    .brand-icon svg {
+      width: 20px;
+      height: 20px;
+      stroke: white;
+    }
+
+    .nav-links a {
+      color: var(--text-muted);
+      text-decoration: none;
+      font-size: 0.9rem;
+      font-weight: 500;
+      transition: color 0.2s;
+    }
+
+    .nav-links a:hover {
+      color: var(--text-main);
+    }
+
+    /* Main Container */
+    main {
+      position: relative;
+      z-index: 10;
+      max-width: 1200px;
+      width: 100%;
+      margin: 0 auto;
+      padding: 60px 24px 80px;
+      flex: 1;
+      display: grid;
+      grid-template-columns: 1.15fr 0.85fr;
+      gap: 60px;
+      align-items: center;
+    }
+
+    /* Hero Content */
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 14px;
+      background: rgba(14, 165, 233, 0.1);
+      border: 1px solid rgba(14, 165, 233, 0.3);
+      border-radius: 999px;
+      color: var(--accent-hover);
+      font-size: 0.8rem;
+      font-weight: 600;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      margin-bottom: 24px;
+    }
+
+    .badge-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--emerald);
+      box-shadow: 0 0 8px var(--emerald);
+    }
+
+    h1 {
+      font-size: clamp(2.4rem, 5vw, 3.8rem);
+      font-weight: 800;
+      line-height: 1.12;
+      letter-spacing: -0.03em;
+      margin-bottom: 20px;
+    }
+
+    h1 span {
+      background: linear-gradient(120deg, #38bdf8 10%, #818cf8 90%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .subtitle {
+      font-size: 1.1rem;
+      color: var(--text-muted);
+      line-height: 1.65;
+      margin-bottom: 32px;
+      max-width: 540px;
+    }
+
+    /* Action Card */
+    .cta-container {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      margin-bottom: 40px;
+    }
+
+    .cta-row {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .download-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 12px;
+      padding: 16px 28px;
+      background: linear-gradient(135deg, #0ea5e9, #0284c7);
+      color: white;
+      text-decoration: none;
+      font-weight: 700;
+      font-size: 1rem;
+      border-radius: var(--radius-md);
+      box-shadow: 0 10px 25px -5px var(--accent-glow);
+      transition: all 0.25s ease;
+    }
+
+    .download-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 14px 30px -5px rgba(14, 165, 233, 0.45);
+      background: linear-gradient(135deg, #38bdf8, #0ea5e9);
+    }
+
+    .download-btn svg {
+      width: 22px;
+      height: 22px;
+      stroke-width: 2.2;
+    }
+
+    .btn-secondary {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 16px 22px;
+      background: var(--surface);
+      color: var(--text-main);
+      text-decoration: none;
+      font-weight: 600;
+      font-size: 0.95rem;
+      border-radius: var(--radius-md);
+      border: 1px solid var(--surface-border);
+      transition: all 0.2s;
+    }
+
+    .btn-secondary:hover {
+      background: #1a2234;
+      border-color: #2e3d5b;
+    }
+
+    .meta-details {
+      display: flex;
+      align-items: center;
+      gap: 18px;
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      font-family: var(--mono);
+    }
+
+    .meta-details span {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    /* Key Specs Highlights */
+    .specs-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 16px;
+      border-top: 1px solid var(--surface-border);
+      padding-top: 28px;
+    }
+
+    .spec-item h4 {
+      font-size: 0.95rem;
+      font-weight: 700;
+      margin-bottom: 4px;
+      color: var(--text-main);
+    }
+
+    .spec-item p {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      line-height: 1.4;
+    }
+
+    /* Phone Mockup Canvas */
+    .mockup-wrapper {
+      display: flex;
+      justify-content: center;
+      position: relative;
+    }
+
+    .mockup-wrapper::before {
+      content: '';
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 380px;
+      height: 600px;
+      background: radial-gradient(circle, rgba(14, 165, 233, 0.2), transparent 70%);
+      z-index: 1;
+      pointer-events: none;
+    }
+
+    .phone-frame {
+      position: relative;
+      z-index: 2;
+      width: 320px;
+      height: 650px;
+      background: #0f172a;
+      border-radius: 44px;
+      border: 10px solid #1e293b;
+      box-shadow: 0 25px 60px -15px rgba(0, 0, 0, 0.8), 0 0 0 1px rgba(255, 255, 255, 0.08);
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* Phone Notch / Speaker */
+    .phone-speaker {
+      width: 90px;
+      height: 18px;
+      background: #1e293b;
+      margin: 0 auto;
+      border-bottom-left-radius: 12px;
+      border-bottom-right-radius: 12px;
+      z-index: 5;
+    }
+
+    /* Mockup App Screen UI */
+    .screen-content {
+      padding: 16px;
+      flex: 1;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      background: #0b1120;
+      font-size: 0.75rem;
+    }
+
+    .screen-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid #1e293b;
+      padding-bottom: 10px;
+    }
+
+    .screen-title {
+      font-weight: 700;
+      color: #38bdf8;
+      font-size: 0.85rem;
+    }
+
+    .screen-pill {
+      background: #1e293b;
+      padding: 2px 8px;
+      border-radius: 4px;
+      font-size: 0.65rem;
+      color: #94a3b8;
+    }
+
+    /* Elevation Vector inside Phone */
+    .cad-box {
+      background: #070b14;
+      border: 1px solid #1e293b;
+      border-radius: 8px;
+      padding: 12px;
+      position: relative;
+    }
+
+    .cad-title {
+      font-size: 0.65rem;
+      color: #64748b;
+      text-transform: uppercase;
+      font-weight: 700;
+      letter-spacing: 0.05em;
+      margin-bottom: 8px;
+    }
+
+    .svg-cad {
+      width: 100%;
+      height: 140px;
+      background: #040711;
+      border: 1px dashed #1e293b;
+      border-radius: 6px;
+      display: block;
+    }
+
+    /* Mini Output Cards */
+    .results-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+    }
+
+    .res-card {
+      background: #111827;
+      border: 1px solid #1f2937;
+      padding: 8px 10px;
+      border-radius: 6px;
+    }
+
+    .res-card .label {
+      font-size: 0.65rem;
+      color: #94a3b8;
+      display: block;
+    }
+
+    .res-card .value {
+      font-size: 0.95rem;
+      font-weight: 800;
+      color: #38bdf8;
+      font-family: var(--mono);
+    }
+
+    .res-card .sub {
+      font-size: 0.6rem;
+      color: #10b981;
+    }
+
+    .glaze-rec {
+      background: #111827;
+      border-left: 3px solid #0ea5e9;
+      border-radius: 4px;
+      padding: 8px 10px;
+    }
+
+    .glaze-rec strong {
+      display: block;
+      color: #f1f5f9;
+      font-size: 0.72rem;
+    }
+
+    .glaze-rec p {
+      font-size: 0.65rem;
+      color: #94a3b8;
+      margin-top: 2px;
+    }
+
+    /* Footer */
+    footer {
+      max-width: 1200px;
+      width: 100%;
+      margin: 0 auto;
+      padding: 24px;
+      border-top: 1px solid var(--surface-border);
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      align-items: center;
+      gap: 16px;
+      color: var(--text-muted);
+      font-size: 0.85rem;
+    }
+
+    footer a {
+      color: var(--text-muted);
+      text-decoration: none;
+    }
+
+    footer a:hover {
+      color: var(--accent);
+    }
+
+    /* Responsive */
+    @media (max-width: 900px) {
+      main {
+        grid-template-columns: 1fr;
+        padding-top: 30px;
+        text-align: center;
+      }
+      .badge {
+        margin: 0 auto 20px;
+      }
+      .subtitle {
+        margin: 0 auto 28px;
+      }
+      .cta-row {
+        justify-content: center;
+      }
+      .meta-details {
+        justify-content: center;
+      }
+      .specs-grid {
+        text-align: left;
+      }
+      .mockup-wrapper {
+        margin-top: 20px;
+      }
+    }
+
+    @media (max-width: 560px) {
+      .specs-grid {
+        grid-template-columns: 1fr;
+        gap: 20px;
+      }
+      .cta-row {
+        flex-direction: column;
+        width: 100%;
+      }
+      .download-btn, .btn-secondary {
+        width: 100%;
+        justify-content: center;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="glow-bg"></div>
+
+  <!-- Header -->
+  <header>
+    <a href="#" class="brand">
+      <div class="brand-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <rect x="3" y="3" width="18" height="18" rx="2"/>
+          <path d="M3 12h18"/>
+          <path d="M12 3v18"/>
+        </svg>
+      </div>
+      <span>FenestraCalc</span>
+    </a>
+    <div class="nav-links">
+      <a href="https://github.com/Amitava-s882/FenestraCalc-Android" target="_blank" rel="noopener">Source Code &rarr;</a>
+    </div>
+  </header>
+
+  <!-- Hero Content Section -->
+  <main>
+    <div class="hero-text">
+      <div class="badge">
+        <span class="badge-dot"></span>
+        v1.0.0 Release • Android Sideload Ready
+      </div>
+
+      <h1>Architectural Fenestration & <span>Ventilation Sizing</span></h1>
+
+      <p class="subtitle">
+        Compute compliant glazed areas, ACH airflow rates, and thermal solar specs (U-factor &amp; SHGC) based on room volume, local climate, orientation, and stack effect physics.
+      </p>
+
+      <div class="cta-container">
+        <div class="cta-row">
+          <!-- Direct download button linked to GitHub Release latest asset -->
+          <a href="https://github.com/Amitava-s882/FenestraCalc-Android/releases/latest/download/FenestraCalc-v1.0.0.apk" class="download-btn">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+              <polyline points="7 10 12 15 17 10"/>
+              <line x1="12" y1="15" x2="12" y2="3"/>
+            </svg>
+            <span>Download APK (Free)</span>
+          </a>
+
+          <a href="https://github.com/Amitava-s882/FenestraCalc-Android/releases/latest" class="btn-secondary" target="_blank" rel="noopener">
+            View Release Notes
+          </a>
+        </div>
+
+        <div class="meta-details">
+          <span><strong>Format:</strong> .APK (Signed Release)</span>
+          <span>•</span>
+          <span><strong>Compatibility:</strong> Android 7.0+</span>
+          <span>•</span>
+          <span><strong>100% Offline &amp; Private</strong></span>
+        </div>
+      </div>
+
+      <!-- Feature Badges -->
+      <div class="specs-grid">
+        <div class="spec-item">
+          <h4>ASHRAE / NBC Rules</h4>
+          <p>Instant presets for Living, Bedroom, Classrooms, and Commercial Offices.</p>
+        </div>
+        <div class="spec-item">
+          <h4>Thermal Stack &amp; Wind</h4>
+          <p>Sizes cross and single-sided ventilation driven by temperature delta ($\Delta T$).</p>
+        </div>
+        <div class="spec-item">
+          <h4>Glazing Selector</h4>
+          <p>Prescribes DGU, Low-E, and tint specs tailored to azimuth and solar exposure.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Phone Mockup with Visual Vector App UI -->
+    <div class="mockup-wrapper">
+      <div class="phone-frame">
+        <div class="phone-speaker"></div>
+        <div class="screen-content">
+          <div class="screen-header">
+            <span class="screen-title">FenestraCAD Mobile</span>
+            <span class="screen-pill">Metric (SI)</span>
+          </div>
+
+          <!-- Scaled Elevation Sketch Mockup -->
+          <div class="cad-box">
+            <div class="cad-title">Active Wall Elevation (W: 4.5m x H: 3.0m)</div>
+            <svg class="svg-cad" viewBox="0 0 260 140" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <!-- Wall Outline -->
+              <rect x="15" y="15" width="230" height="110" fill="#0b1329" stroke="#334155" stroke-width="1.5"/>
+              
+              <!-- Window Opening with Sill and Lintel -->
+              <rect x="75" y="35" width="110" height="70" fill="rgba(14, 165, 233, 0.15)" stroke="#0ea5e9" stroke-width="1.5"/>
+              <!-- Fixed Pane -->
+              <rect x="75" y="35" width="55" height="70" stroke="#38bdf8" stroke-dasharray="3 3"/>
+              <!-- Operable Pane (Casement Swing Vector) -->
+              <rect x="130" y="35" width="55" height="70" fill="rgba(16, 185, 129, 0.1)" stroke="#10b981"/>
+              <line x1="130" y1="35" x2="185" y2="70" stroke="#10b981" stroke-width="0.8"/>
+              <line x1="130" y1="105" x2="185" y2="70" stroke="#10b981" stroke-width="0.8"/>
+
+              <!-- Human Scale Reference Figure (Silhouette) -->
+              <circle cx="45" cy="65" r="4" fill="#64748b"/>
+              <path d="M41 73 h8 v24 h-2 v18 h-4 v-18 h-2 z" fill="#64748b"/>
+
+              <!-- Dimension Annotations -->
+              <text x="130" y="30" fill="#94a3b8" font-size="8" text-anchor="middle" font-family="monospace">1.80m (Lintel)</text>
+              <line x1="75" y1="32" x2="185" y2="32" stroke="#475569" stroke-width="0.7"/>
+              <text x="130" y="118" fill="#94a3b8" font-size="8" text-anchor="middle" font-family="monospace">0.90m (Sill)</text>
+            </svg>
+          </div>
+
+          <!-- Dynamic Output Metrics -->
+          <div class="results-row">
+            <div class="res-card">
+              <span class="label">Required Aperture</span>
+              <span class="value">2.45 m²</span>
+              <span class="sub">15.2% WFR Target</span>
+            </div>
+            <div class="res-card">
+              <span class="label">ACH Delivery</span>
+              <span class="value">4.2 ACH</span>
+              <span class="sub">Cross-Flow Valid</span>
+            </div>
+          </div>
+
+          <!-- Glazing Card -->
+          <div class="glaze-rec">
+            <strong>South-West Facade Spec</strong>
+            <p>Double Glazed Unit (DGU) with Solar Low-E (SHGC &le; 0.28, U-value &le; 1.8 W/m²K).</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <!-- Footer -->
+  <footer>
+    <div>
+      &copy; 2026 FenestraCalc • Free &amp; Open Source Passive Design Engine.
+    </div>
+    <div style="display: flex; gap: 20px;">
+      <a href="https://github.com/Amitava-s882/FenestraCalc-Android/blob/main/LICENSE" target="_blank" rel="noopener">MIT License</a>
+      <a href="https://github.com/Amitava-s882/FenestraCalc-Android/issues" target="_blank" rel="noopener">Report Issue</a>
+    </div>
+  </footer>
+
+</body>
+</html>
